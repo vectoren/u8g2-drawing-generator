@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>u8g2 32×32 Pixel Editor & Code Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div>
+                <h1>u8g2 32×32 Pixel Editor — generate <code>u8g2.drawPixel(x, y);</code></h1>
+                <div class="description">Click or drag to paint pixels on a 32×32 grid. Generated code uses (x,y) with origin at top-left (0,0).</div>
+            </div>
+        </header>
+
+        <section class="left">
+            <div class="canvas-wrap">
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+                    <div class="toolbar">
+                        <div class="controls">
+                            <button id="clearBtn">Clear</button>
+                            <button id="invertBtn">Invert</button>
+                            <button id="randomBtn">Random</button>
+                        </div>
+                    </div>
+                    <div class="coords">Hover shows coordinates; <br>right-click clears single cell.</div>
+                </div>
+                <div id="gridContainer"></div>
+            </div>
+        </section>
+
+        <aside class="right">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
+                <div>
+                    <label class="small">Generate order:</label>
+                    <select id="orderSel">
+                        <option value="byY">By row (y) then x</option>
+                        <option value="byX">By column (x) then y</option>
+                        <option value="scan">Scan order (y*32 + x)</option>
+                        <option value="custom">Custom (unsorted)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 8px">
+                    <button id="genBtn">Generate Code</button>
+                    <button id="copyBtn">Copy</button>
+                    <button id="downloadBtn">Download</button>
+                </div>
+            </div>
+
+            <textarea class="codebox" id="codeBox" spellcheck="false"></textarea>
+
+            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+                <label class="small">Prefix:</label>
+                <input id="prefix" value="u8g2.drawPixel(" style="width: 220px">
+                <label class="small">Suffix:</label>
+                <input id="suffix" value=");" style="width: 80px">
+            </div>
+
+            <div style="margin-top: 12px; color: var(--muted); font-size: 13px">
+                Notes: Coordinates start at (0,0) top-left. Example output:
+                <div style="margin-top: 6px; font-family: monospace; background: #041018; padding: 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.02)">
+                    u8g2.drawPixel(2, 0);<br>u8g2.drawPixel(2, 2);
+                </div>
+            </div>
+        </aside>
+
+        
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
