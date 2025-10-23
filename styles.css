@@ -57,8 +57,6 @@ h1 {
     min-width: calc(320px+8px+32px);
     min-height: calc(320px+8px+32px);
 }
-
-
 .controls {
     display: flex;
     gap: 8px;
@@ -104,6 +102,22 @@ label {
     font-size: 12px;
     color: var(--muted);
 }
+
+select {
+    background-color: #0b1220;  
+    color: #e6eef3;            
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    appearance: none;
+}
+
+option {
+    background-color: #0b1220;  
+    color: #e6eef3;             
+}
+
 /* cell styles */
 
 .cell {

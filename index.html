@@ -35,11 +35,9 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
                 <div>
                     <label class="small">Generate order:</label>
-                    <select id="orderSel">
+                    <select id="orderSel" class="sorting">
                         <option value="byY">By row (y) then x</option>
                         <option value="byX">By column (x) then y</option>
-                        <option value="scan">Scan order (y*32 + x)</option>
-                        <option value="custom">Custom (unsorted)</option>
                     </select>
                 </div>
                 <div style="display: flex; gap: 8px">
@@ -48,8 +46,9 @@
                     <button id="downloadBtn">Download</button>
                 </div>
             </div>
-
+            
             <textarea class="codebox" id="codeBox" spellcheck="false"></textarea>
+            <div class="description">To import already made projects and edit them paste your code into the text area</div>
 
             <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
                 <label class="small">Prefix:</label>

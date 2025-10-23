@@ -18,9 +18,7 @@ function buildGrid(cellSize) {
     grid.style.gridTemplateColumns = `repeat(${WIDTH}, ${cellSize}px)`;
     grid.style.gridTemplateRows = `repeat(${HEIGHT}, ${cellSize}px)`;
     grid.style.gap = 'var(--grid-gap)';
-    // grid.style.width = `${WIDTH * cellSize}px`;
     grid.style.width = `540px`;
-    // grid.style.height = `${HEIGHT * cellSize}px`;
     grid.style.height = `540px`;
     for (let y = 0; y < HEIGHT; y++) {
         for (let x = 0; x < WIDTH; x++) {
@@ -39,7 +37,6 @@ function buildGrid(cellSize) {
                     draggingMode = 'paint';
                     setCell(c, !c.classList.contains('on'));
                 }
-                modeLabel.textContent = draggingMode;
             });
             c.addEventListener('mouseenter', (ev) => {
                 if (isMouseDown) {
@@ -49,7 +46,6 @@ function buildGrid(cellSize) {
             });
             c.addEventListener('mouseup', () => {
                 isMouseDown = false;
-                modeLabel.textContent = 'paint';
             });
             c.addEventListener('contextmenu', (ev) => {
                 ev.preventDefault();
@@ -68,7 +64,6 @@ function setCell(el, on) {
 
 document.body.addEventListener('mouseup', () => {
     isMouseDown = false;
-    modeLabel.textContent = 'paint';
 });
 
 document.getElementById('clearBtn').addEventListener('click', () => {
@@ -92,7 +87,7 @@ document.getElementById('genBtn').addEventListener('click', () => {
     const order = orderSel.value;
     if (order === 'byY') points.sort((a, b) => a[1] - b[1] || a[0] - b[0]);
     else if (order === 'byX') points.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-    else if (order === 'scan') points.sort((a, b) => (a[1] * WIDTH + a[0]) - (b[1] * WIDTH + b[0]));
+
     const lines = points.map(p => `${prefix}${p[0]}, ${p[1]}${suffix}`);
     codeBox.textContent = lines.join('\n');
 });
@@ -117,6 +112,15 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     a.remove();
     URL.revokeObjectURL(url);
 });
+
+codeBox.addEventListener('change', () => {
+
+   console.log(codeBox.value); 
+});
+
+function removePrefixes(){
+
+}
 
 buildGrid(defaultCellSize);
 document.addEventListener('keydown', (ev) => {
