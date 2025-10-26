@@ -68,7 +68,7 @@ document.body.addEventListener('mouseup', () => {
 
 document.getElementById('clearBtn').addEventListener('click', () => {
     document.querySelectorAll('.cell.on').forEach(c => c.classList.remove('on'));
-    codeBox.textContent = '';
+    codeBox.value = '';
 });
 
 document.getElementById('invertBtn').addEventListener('click', () => {
@@ -115,7 +115,7 @@ document.getElementById('importBtn').addEventListener('click', () => { // enable
                     }
                 }
             }
-        }) 
+        }); 
         
     };
 
