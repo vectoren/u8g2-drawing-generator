@@ -79,7 +79,7 @@ document.getElementById('randomBtn').addEventListener('click', () => {
     document.querySelectorAll('.cell').forEach(c => setCell(c, Math.random() > 0.8));
 });
 
-document.getElementById('genBtn').addEventListener('click', () => {
+document.getElementById('genBtn').addEventListener('click', () => { // enable import
     const prefix = prefixInput.value || 'u8g2.drawPixel(';
     const suffix = suffixInput.value || ');';
     let points = [];
@@ -87,14 +87,41 @@ document.getElementById('genBtn').addEventListener('click', () => {
     const order = orderSel.value;
     if (order === 'byY') points.sort((a, b) => a[1] - b[1] || a[0] - b[0]);
     else if (order === 'byX') points.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-
+    
     const lines = points.map(p => `${prefix}${p[0]}, ${p[1]}${suffix}`);
-    codeBox.textContent = lines.join('\n');
+    codeBox.value = lines.join('\n');
+    
+});
+
+document.getElementById('importBtn').addEventListener('click', () => { // enable import
+    const prefix = prefixInput.value || 'u8g2.drawPixel(';
+    const suffix = suffixInput.value || ');';
+    if(codeBox.value != null || codeBox.value != "")
+    {
+        let lines_import = [] = codeBox.value.split("\n");
+        for(let i = 0; i < lines_import.length; i++)
+        {
+            lines_import[i] = lines_import[i].replace(prefix, "");
+            lines_import[i] = lines_import[i].replace(suffix, "");
+            lines_import[i] = lines_import[i].split(", ");
+        }
+        document.querySelectorAll('.cell').forEach(c => 
+        {
+            for(let x = 0; x < lines_import.length; x++)
+            {
+                if(c.dataset.x == lines_import[x][0] && c.dataset.y == lines_import[x][1]){
+                    c.classList.toggle('on');
+                }
+            }
+        }) 
+        
+    };
+
 });
 
 document.getElementById('copyBtn').addEventListener('click', async () => {
     try {
-        await navigator.clipboard.writeText(codeBox.textContent);
+        await navigator.clipboard.writeText(codeBox.value);
         alert('Copied to clipboard');
     } catch (e) {
         alert('Copy failed — select and copy manually');
@@ -102,7 +129,7 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 });
 
 document.getElementById('downloadBtn').addEventListener('click', () => {
-    const blob = new Blob([codeBox.textContent || ''], { type: 'text/plain' });
+    const blob = new Blob([codeBox.value || ''], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -113,14 +140,14 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     URL.revokeObjectURL(url);
 });
 
-codeBox.addEventListener('change', () => {
+// codeBox.addEventListener('change', () => {
 
-   console.log(codeBox.value); 
-});
+//    console.log(codeBox.value); 
+// });
 
-function removePrefixes(){
-
-}
+// function removePrefixes(){
+    
+// }
 
 buildGrid(defaultCellSize);
 document.addEventListener('keydown', (ev) => {
