@@ -110,7 +110,9 @@ document.getElementById('importBtn').addEventListener('click', () => { // enable
             for(let x = 0; x < lines_import.length; x++)
             {
                 if(c.dataset.x == lines_import[x][0] && c.dataset.y == lines_import[x][1]){
-                    c.classList.toggle('on');
+                    if(!c.classList.contains('on')){
+                        c.classList.add('on');
+                    }
                 }
             }
         }) 
