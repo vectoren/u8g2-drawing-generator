@@ -10,6 +10,22 @@ const suffixInput = document.getElementById('suffix');
 const orderSel = document.getElementById('orderSel');
 const defaultCellSize = 16;
 const modeLabel = document.getElementById('mode');
+// origin / relative output support
+let origin = null; // [x, y]
+let originCell = null;
+let awaitingOrigin = false;
+const setOriginBtn = document.getElementById('setOriginBtn');
+const clearOriginBtn = document.getElementById('clearOriginBtn');
+const outputModeRadios = document.getElementsByName('outputMode');
+const originDisplay = document.getElementById('originDisplay');
+
+function getOutputMode() {
+    if (!outputModeRadios) return 'normal';
+    for (let i = 0; i < outputModeRadios.length; i++) {
+        if (outputModeRadios[i].checked) return outputModeRadios[i].value;
+    }
+    return 'normal';
+}
 
 function buildGrid(cellSize) {
     gridContainer.innerHTML = '';
@@ -29,6 +45,12 @@ function buildGrid(cellSize) {
             c.title = `${x}, ${y}`;
             c.addEventListener('mousedown', (ev) => {
                 ev.preventDefault();
+                // if we're awaiting an origin selection, use this click to set it
+                if (awaitingOrigin) {
+                    setOriginCell(c);
+                    awaitingOrigin = false;
+                    return;
+                }
                 isMouseDown = true;
                 if (ev.button === 2) {
                     draggingMode = 'erase';
@@ -79,7 +101,7 @@ document.getElementById('randomBtn').addEventListener('click', () => {
     document.querySelectorAll('.cell').forEach(c => setCell(c, Math.random() > 0.8));
 });
 
-document.getElementById('genBtn').addEventListener('click', () => { // enable import
+document.getElementById('genBtn').addEventListener('click', () => {
     const prefix = prefixInput.value || 'u8g2.drawPixel(';
     const suffix = suffixInput.value || ');';
     let points = [];
@@ -88,12 +110,40 @@ document.getElementById('genBtn').addEventListener('click', () => { // enable im
     if (order === 'byY') points.sort((a, b) => a[1] - b[1] || a[0] - b[0]);
     else if (order === 'byX') points.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
     
-    const lines = points.map(p => `${prefix}${p[0]}, ${p[1]}${suffix}`);
+    // if relative output is requested, require an origin and format as base +/- offset
+    function formatCoord(base, delta) {
+        if (delta === 0) return `${base}`;
+        return delta > 0 ? `${base} + ${delta}` : `${base} - ${Math.abs(delta)}`;
+    }
+
+    let lines = [];
+    const mode = getOutputMode();
+    if (mode === 'normal') {
+        lines = points.map(p => `${prefix}${p[0]}, ${p[1]}${suffix}`);
+    } else if (mode === 'relative' || mode === 'variable') {
+        if (!origin) {
+            alert('Please set an origin first (click "Set origin" and then a cell).');
+            return;
+        }
+        const baseX = mode === 'variable' ? 'x' : origin[0];
+        const baseY = mode === 'variable' ? 'y' : origin[1];
+        lines = points.map(p => {
+            const dx = p[0] - origin[0];
+            const dy = p[1] - origin[1];
+            const xExpr = formatCoord(baseX, dx);
+            const yExpr = formatCoord(baseY, dy);
+            return `${prefix}${xExpr}, ${yExpr}${suffix}`;
+        });
+    } else {
+        // fallback to normal
+        lines = points.map(p => `${prefix}${p[0]}, ${p[1]}${suffix}`);
+    }
     codeBox.value = lines.join('\n');
     
 });
 
-document.getElementById('importBtn').addEventListener('click', () => { // enable import
+document.getElementById('importBtn').addEventListener('click', () => {
+    document.querySelectorAll('.cell.on').forEach(c => c.classList.remove('on'));
     const prefix = prefixInput.value || 'u8g2.drawPixel(';
     const suffix = suffixInput.value || ');';
     if(codeBox.value != null || codeBox.value != "")
@@ -142,14 +192,35 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     URL.revokeObjectURL(url);
 });
 
-// codeBox.addEventListener('change', () => {
+    // --- origin helpers and UI wiring ---
+    function setOriginCell(c) {
+        if (originCell) originCell.classList.remove('origin');
+        const x = parseInt(c.dataset.x);
+        const y = parseInt(c.dataset.y);
+        origin = [x, y];
+        originCell = c;
+        originCell.classList.add('origin');
+        if (originDisplay) originDisplay.textContent = `${x}, ${y}`;
+    }
 
-//    console.log(codeBox.value); 
-// });
+    function clearOrigin() {
+        if (originCell) originCell.classList.remove('origin');
+        origin = null;
+        originCell = null;
+        if (originDisplay) originDisplay.textContent = 'none';
+    }
 
-// function removePrefixes(){
-    
-// }
+    if (setOriginBtn) {
+        setOriginBtn.addEventListener('click', () => {
+            awaitingOrigin = true;
+            if (originDisplay) originDisplay.textContent = '(click a cell)';
+        });
+    }
+
+    if (clearOriginBtn) {
+        clearOriginBtn.addEventListener('click', () => clearOrigin());
+    }
+
 
 buildGrid(defaultCellSize);
 document.addEventListener('keydown', (ev) => {

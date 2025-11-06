@@ -134,6 +134,11 @@ option {
     border: 1px solid rgba(255, 255, 255, 0.06);
     box-shadow: 0 0 6px rgba(110, 231, 183, 0.15);
 }
+.cell.origin {
+    outline: 2px solid #ffd86b;
+    outline-offset: -2px;
+    box-shadow: 0 0 6px rgba(255, 216, 107, 0.12);
+}
 .coords {
     font-size: 12px;
     color: var(--muted);

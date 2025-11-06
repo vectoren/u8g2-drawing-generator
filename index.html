@@ -23,9 +23,27 @@
                             <button id="clearBtn">Clear</button>
                             <button id="invertBtn">Invert</button>
                             <button id="randomBtn">Random</button>
+                            <button id="setOriginBtn" title="Click this, then click a cell to set origin">Set origin</button>
+                            <button id="clearOriginBtn" title="Clear the selected origin">Clear origin</button>
+                            <fieldset style="display:flex; align-items:center; gap:8px; border:0; padding:0; margin:0">
+                                <legend class="small" style="margin-right:6px">Output:</legend>
+                                <label class="small" style="display:flex; align-items:center; gap:6px;">
+                                    <input type="radio" name="outputMode" id="outputNormal" value="normal" checked>
+                                    Normal
+                                </label>
+                                <label class="small" style="display:flex; align-items:center; gap:6px;">
+                                    <input type="radio" name="outputMode" id="outputRelative" value="relative">
+                                    Relative
+                                </label>
+                                <label class="small" style="display:flex; align-items:center; gap:6px;">
+                                    <input type="radio" name="outputMode" id="outputVariable" value="variable">
+                                    Variable
+                                </label>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="coords">Hover shows coordinates; <br>right-click clears single cell.</div>
+                    <div style="margin-top:6px; font-size:13px; color:var(--muted)">Origin: <span id="originDisplay">none</span></div>
                 </div>
                 <div id="gridContainer"></div>
             </div>
