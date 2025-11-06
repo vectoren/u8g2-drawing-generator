@@ -14,8 +14,6 @@ const modeLabel = document.getElementById('mode');
 let origin = null; // [x, y]
 let originCell = null;
 let awaitingOrigin = false;
-const setOriginBtn = document.getElementById('setOriginBtn');
-const clearOriginBtn = document.getElementById('clearOriginBtn');
 const outputModeRadios = document.getElementsByName('outputMode');
 const originDisplay = document.getElementById('originDisplay');
 
@@ -45,7 +43,7 @@ function buildGrid(cellSize) {
             c.title = `${x}, ${y}`;
             c.addEventListener('mousedown', (ev) => {
                 ev.preventDefault();
-                // if we're awaiting an origin selection, use this click to set it
+                
                 if (awaitingOrigin) {
                     setOriginCell(c);
                     awaitingOrigin = false;
@@ -122,7 +120,7 @@ document.getElementById('genBtn').addEventListener('click', () => {
         lines = points.map(p => `${prefix}${p[0]}, ${p[1]}${suffix}`);
     } else if (mode === 'relative' || mode === 'variable') {
         if (!origin) {
-            alert('Please set an origin first (click "Set origin" and then a cell).');
+            alert(`Please set an origin for ${mode} mode.`);
             return;
         }
         const baseX = mode === 'variable' ? 'x' : origin[0];
@@ -146,29 +144,89 @@ document.getElementById('importBtn').addEventListener('click', () => {
     document.querySelectorAll('.cell.on').forEach(c => c.classList.remove('on'));
     const prefix = prefixInput.value || 'u8g2.drawPixel(';
     const suffix = suffixInput.value || ');';
-    if(codeBox.value != null || codeBox.value != "")
-    {
-        let lines_import = [] = codeBox.value.split("\n");
-        for(let i = 0; i < lines_import.length; i++)
-        {
-            lines_import[i] = lines_import[i].replace(prefix, "");
-            lines_import[i] = lines_import[i].replace(suffix, "");
-            lines_import[i] = lines_import[i].split(", ");
-        }
-        document.querySelectorAll('.cell').forEach(c => 
-        {
-            for(let x = 0; x < lines_import.length; x++)
-            {
-                if(c.dataset.x == lines_import[x][0] && c.dataset.y == lines_import[x][1]){
-                    if(!c.classList.contains('on')){
-                        c.classList.add('on');
-                    }
-                }
-            }
-        }); 
+    const text = codeBox.value || '';
+    if (!text.trim()) return;
+
+    const rawLines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const parsedPoints = [];
+    let foundExpression = false;
+
+    const tryParseCoord = (coordStr) => {
+        coordStr = coordStr.trim();
         
+        if (/^-?\d+$/.test(coordStr)) return { type: 'number', value: parseInt(coordStr, 10) };
+        
+        const m = coordStr.match(/^([A-Za-z_][\w]*|-?\d+)\s*([+-])\s*(\d+)$/);
+        if (m) {
+            const base = m[1];
+            const op = m[2];
+            const n = parseInt(m[3], 10);
+            if (/^-?\d+$/.test(base)) {
+                const baseNum = parseInt(base, 10);
+                return { type: 'number', value: op === '+' ? baseNum + n : baseNum - n };
+            }
+            foundExpression = true;
+            return { type: 'variableExpr', base: base, op: op, n: n };
+        }
+        const m2 = coordStr.match(/^([A-Za-z_][\w]*)$/);
+        if (m2) {
+            foundExpression = true;
+            return { type: 'variableExpr', base: m2[1], op: null, n: 0 };
+        }
+        return null;
     };
 
+    for (const line of rawLines) {
+        let s = line;
+        
+        if (s.startsWith(prefix)) s = s.slice(prefix.length);
+        if (s.endsWith(suffix)) s = s.slice(0, s.length - suffix.length);
+        
+        const parts = s.split(',');
+        if (parts.length < 2) continue;
+        const xStr = parts[0].trim();
+        const yStr = parts.slice(1).join(',').trim();
+        const xInfo = tryParseCoord(xStr);
+        const yInfo = tryParseCoord(yStr);
+        if (!xInfo || !yInfo) continue;
+        parsedPoints.push({ xInfo, yInfo });
+    }
+
+    if (foundExpression && !origin) {
+        alert('Import contains relative or variable expressions. Please set an origin first.');
+        return;
+    }
+
+    for (const p of parsedPoints) {
+        let ax, ay;
+        const resolve = (info, axis) => {
+            if (info.type === 'number') return info.value;
+            
+            const baseName = info.base;
+            let baseVal;
+            if (/^-?\d+$/.test(baseName)) baseVal = parseInt(baseName, 10);
+            else if (baseName === 'x') baseVal = origin[0];
+            else if (baseName === 'y') baseVal = origin[1];
+            else {
+                alert('Unsupported variable base "' + baseName + '" in import. Only "x" and "y" are supported for variable imports.');
+                throw new Error('unsupported variable');
+            }
+            if (!info.op) return baseVal + info.n; 
+            return info.op === '+' ? baseVal + info.n : baseVal - info.n;
+        };
+
+        try {
+            ax = resolve(p.xInfo, 'x');
+            ay = resolve(p.yInfo, 'y');
+        } catch (e) {
+            return; 
+        }
+
+        if (Number.isInteger(ax) && Number.isInteger(ay) && ax >= 0 && ax < WIDTH && ay >= 0 && ay < HEIGHT) {
+            const cell = document.querySelector(`.cell[data-x="${ax}"][data-y="${ay}"]`);
+            if (cell) cell.classList.add('on');
+        }
+    }
 });
 
 document.getElementById('copyBtn').addEventListener('click', async () => {
@@ -192,37 +250,30 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     URL.revokeObjectURL(url);
 });
 
-    // --- origin helpers and UI wiring ---
-    function setOriginCell(c) {
-        if (originCell) originCell.classList.remove('origin');
-        const x = parseInt(c.dataset.x);
-        const y = parseInt(c.dataset.y);
-        origin = [x, y];
-        originCell = c;
-        originCell.classList.add('origin');
-        if (originDisplay) originDisplay.textContent = `${x}, ${y}`;
-    }
+document.getElementById('setOriginBtn').addEventListener('click', () => {
+    awaitingOrigin = !awaitingOrigin;
+    if (originDisplay) originDisplay.textContent = '(click a cell)';
+});
 
-    function clearOrigin() {
-        if (originCell) originCell.classList.remove('origin');
-        origin = null;
-        originCell = null;
-        if (originDisplay) originDisplay.textContent = 'none';
-    }
+document.getElementById('clearOriginBtn').addEventListener('click', () => {
+    if (originCell) originCell.classList.remove('origin');
+    origin = null;
+    originCell = null;
+    if (originDisplay) originDisplay.textContent = 'none';
+});
 
-    if (setOriginBtn) {
-        setOriginBtn.addEventListener('click', () => {
-            awaitingOrigin = true;
-            if (originDisplay) originDisplay.textContent = '(click a cell)';
-        });
-    }
-
-    if (clearOriginBtn) {
-        clearOriginBtn.addEventListener('click', () => clearOrigin());
-    }
-
+function setOriginCell(c) {
+    if (originCell) originCell.classList.remove('origin');
+    const x = parseInt(c.dataset.x);
+    const y = parseInt(c.dataset.y);
+    origin = [x, y];
+    originCell = c;
+    originCell.classList.add('origin');
+    if (originDisplay) originDisplay.textContent = `${x}, ${y}`;
+}
 
 buildGrid(defaultCellSize);
+
 document.addEventListener('keydown', (ev) => {
     if (document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('cell')) {
         const c = document.activeElement;
