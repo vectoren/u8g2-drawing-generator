@@ -1,3 +1,5 @@
+alert('Before usage read manual');
+
 const WIDTH = 32;
 const HEIGHT = 32;
 let paint = true;
@@ -108,35 +110,59 @@ document.getElementById('genBtn').addEventListener('click', () => {
     if (order === 'byY') points.sort((a, b) => a[1] - b[1] || a[0] - b[0]);
     else if (order === 'byX') points.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
     
-    // if relative output is requested, require an origin and format as base +/- offset
+    // helper to format x/y expressions for relative/variable modes
     function formatCoord(base, delta) {
         if (delta === 0) return `${base}`;
         return delta > 0 ? `${base} + ${delta}` : `${base} - ${Math.abs(delta)}`;
     }
 
-    let lines = [];
     const mode = getOutputMode();
-    if (mode === 'normal') {
-        lines = points.map(p => `${prefix}${p[0]}, ${p[1]}${suffix}`);
-    } else if (mode === 'relative' || mode === 'variable') {
-        if (!origin) {
-            alert(`Please set an origin for ${mode} mode.`);
-            return;
-        }
-        const baseX = mode === 'variable' ? 'x' : origin[0];
-        const baseY = mode === 'variable' ? 'y' : origin[1];
-        lines = points.map(p => {
-            const dx = p[0] - origin[0];
-            const dy = p[1] - origin[1];
-            const xExpr = formatCoord(baseX, dx);
-            const yExpr = formatCoord(baseY, dy);
-            return `${prefix}${xExpr}, ${yExpr}${suffix}`;
-        });
-    } else {
-        // fallback to normal
-        lines = points.map(p => `${prefix}${p[0]}, ${p[1]}${suffix}`);
+    // if relative/variable require origin
+    if ((mode === 'relative' || mode === 'variable') && !origin) {
+        alert(`Please set an origin for ${mode} mode.`);
+        return;
     }
-    codeBox.value = lines.join('\n');
+
+    // detect contiguous horizontal/vertical runs and pixels
+    const cmds = detectLines(points);
+    const outLines = [];
+
+    for (const cmd of cmds) {
+        if (cmd.type === 'pixel') {
+            if (mode === 'normal') outLines.push(`${prefix}${cmd.x}, ${cmd.y}${suffix}`);
+            else {
+                const baseX = mode === 'variable' ? 'x' : origin[0];
+                const baseY = mode === 'variable' ? 'y' : origin[1];
+                const xExpr = formatCoord(baseX, cmd.x - origin[0]);
+                const yExpr = formatCoord(baseY, cmd.y - origin[1]);
+                outLines.push(`${prefix}${xExpr}, ${yExpr}${suffix}`);
+            }
+        } else if (cmd.type === 'hline') {
+            // use drawHLine(x, y, w)
+            if (mode === 'normal') {
+                outLines.push(`u8g2.drawHLine(${cmd.x}, ${cmd.y}, ${cmd.w}${suffix}`);
+            } else {
+                const baseX = mode === 'variable' ? 'x' : origin[0];
+                const baseY = mode === 'variable' ? 'y' : origin[1];
+                const xExpr = formatCoord(baseX, cmd.x - origin[0]);
+                const yExpr = formatCoord(baseY, cmd.y - origin[1]);
+                outLines.push(`u8g2.drawHLine(${xExpr}, ${yExpr}, ${cmd.w}${suffix}`);
+            }
+        } else if (cmd.type === 'vline') {
+            // use drawVLine(x, y, w)
+            if (mode === 'normal') {
+                outLines.push(`u8g2.drawVLine(${cmd.x}, ${cmd.y}, ${cmd.w}${suffix}`);
+            } else {
+                const baseX = mode === 'variable' ? 'x' : origin[0];
+                const baseY = mode === 'variable' ? 'y' : origin[1];
+                const xExpr = formatCoord(baseX, cmd.x - origin[0]);
+                const yExpr = formatCoord(baseY, cmd.y - origin[1]);
+                outLines.push(`u8g2.drawVLine(${xExpr}, ${yExpr}, ${cmd.w}${suffix}`);
+            }
+        }
+    }
+
+    codeBox.value = outLines.join('\n');
     
 });
 
@@ -177,11 +203,36 @@ document.getElementById('importBtn').addEventListener('click', () => {
     };
 
     for (const line of rawLines) {
+        // try parse HLine/VLine first (allow variations like u8g2.drawHLine(...))
+        const hmatch = line.match(/drawHLine\s*\(([^)]*)\)/i);
+        const vmatch = line.match(/drawVLine\s*\(([^)]*)\)/i);
+        if (hmatch) {
+            const args = hmatch[1].split(',').map(a => a.trim());
+            if (args.length >= 3) {
+                const xInfo = tryParseCoord(args[0]);
+                const yInfo = tryParseCoord(args[1]);
+                const wInfo = tryParseCoord(args[2]);
+                if (!xInfo || !yInfo || !wInfo) continue;
+                parsedPoints.push({ type: 'hline', xInfo, yInfo, wInfo });
+                continue;
+            }
+        }
+        if (vmatch) {
+            const args = vmatch[1].split(',').map(a => a.trim());
+            if (args.length >= 3) {
+                const xInfo = tryParseCoord(args[0]);
+                const yInfo = tryParseCoord(args[1]);
+                const wInfo = tryParseCoord(args[2]);
+                if (!xInfo || !yInfo || !wInfo) continue;
+                parsedPoints.push({ type: 'vline', xInfo, yInfo, wInfo });
+                continue;
+            }
+        }
+
+        // fallback: try parsing as drawPixel-like or "x, y"
         let s = line;
-        
         if (s.startsWith(prefix)) s = s.slice(prefix.length);
         if (s.endsWith(suffix)) s = s.slice(0, s.length - suffix.length);
-        
         const parts = s.split(',');
         if (parts.length < 2) continue;
         const xStr = parts[0].trim();
@@ -189,7 +240,7 @@ document.getElementById('importBtn').addEventListener('click', () => {
         const xInfo = tryParseCoord(xStr);
         const yInfo = tryParseCoord(yStr);
         if (!xInfo || !yInfo) continue;
-        parsedPoints.push({ xInfo, yInfo });
+        parsedPoints.push({ type: 'pixel', xInfo, yInfo });
     }
 
     if (foundExpression && !origin) {
@@ -197,35 +248,51 @@ document.getElementById('importBtn').addEventListener('click', () => {
         return;
     }
 
-    for (const p of parsedPoints) {
-        let ax, ay;
-        const resolve = (info, axis) => {
-            if (info.type === 'number') return info.value;
-            
-            const baseName = info.base;
-            let baseVal;
-            if (/^-?\d+$/.test(baseName)) baseVal = parseInt(baseName, 10);
-            else if (baseName === 'x') baseVal = origin[0];
-            else if (baseName === 'y') baseVal = origin[1];
-            else {
-                alert('Unsupported variable base "' + baseName + '" in import. Only "x" and "y" are supported for variable imports.');
-                throw new Error('unsupported variable');
-            }
-            if (!info.op) return baseVal + info.n; 
-            return info.op === '+' ? baseVal + info.n : baseVal - info.n;
-        };
-
-        try {
-            ax = resolve(p.xInfo, 'x');
-            ay = resolve(p.yInfo, 'y');
-        } catch (e) {
-            return; 
-        }
-
+    // resolve parsed items into absolute coordinates and set cells
+    const setCellAt = (ax, ay) => {
         if (Number.isInteger(ax) && Number.isInteger(ay) && ax >= 0 && ax < WIDTH && ay >= 0 && ay < HEIGHT) {
             const cell = document.querySelector(`.cell[data-x="${ax}"][data-y="${ay}"]`);
             if (cell) cell.classList.add('on');
         }
+    };
+
+    const resolveInfo = (info) => {
+        if (info.type === 'number') return info.value;
+        const baseName = info.base;
+        let baseVal;
+        if (/^-?\d+$/.test(baseName)) baseVal = parseInt(baseName, 10);
+        else if (baseName === 'x') baseVal = origin ? origin[0] : null;
+        else if (baseName === 'y') baseVal = origin ? origin[1] : null;
+        else {
+            alert('Unsupported variable base "' + baseName + '" in import. Only "x" and "y" are supported for variable imports.');
+            throw new Error('unsupported variable');
+        }
+        if (baseVal === null) throw new Error('origin required');
+        if (!info.op) return baseVal + info.n;
+        return info.op === '+' ? baseVal + info.n : baseVal - info.n;
+    };
+
+    try {
+        for (const item of parsedPoints) {
+            if (item.type === 'pixel') {
+                const ax = resolveInfo(item.xInfo);
+                const ay = resolveInfo(item.yInfo);
+                setCellAt(ax, ay);
+            } else if (item.type === 'hline') {
+                const ax = resolveInfo(item.xInfo);
+                const ay = resolveInfo(item.yInfo);
+                const aw = resolveInfo(item.wInfo);
+                for (let i = 0; i < aw; i++) setCellAt(ax + i, ay);
+            } else if (item.type === 'vline') {
+                const ax = resolveInfo(item.xInfo);
+                const ay = resolveInfo(item.yInfo);
+                const aw = resolveInfo(item.wInfo);
+                for (let i = 0; i < aw; i++) setCellAt(ax, ay + i);
+            }
+        }
+    } catch (e) {
+        // resolving failed (likely missing origin); user already alerted in resolveInfo
+        return;
     }
 });
 
@@ -312,6 +379,20 @@ document.getElementById('presetCube').addEventListener('click', () => {
     applyPresetPattern(cubePattern);
 });
 
+document.getElementById('presetCircle').addEventListener('click', () => {
+    const cubePattern = [
+        "00111100",
+        "01111110",
+        "11111111",
+        "11111111",
+        "11111111",
+        "11111111",
+        "01111110",
+        "00111100"
+    ];
+    applyPresetPattern(cubePattern);
+});
+
 function applyPresetPattern(pattern) {
     if(origin) {
         const offsetX = origin[0];
@@ -329,4 +410,47 @@ function applyPresetPattern(pattern) {
     else {
         alert('Please set an origin before applying a preset pattern.');
     }
+}
+
+function detectLines(points) {
+    const set = new Set(points.map(p => `${p[0]},${p[1]}`));
+    const consumed = new Set();
+    // sort by y then x so horizontal runs start from leftmost, vertical from topmost
+    points.sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+    const cmds = [];
+    for (const [x, y] of points) {
+        const key = `${x},${y}`;
+        if (consumed.has(key)) continue;
+        // compute horizontal length starting at (x,y)
+        let hx = x + 1;
+        let hlen = 1;
+        while (set.has(`${hx},${y}`) && !consumed.has(`${hx},${y}`)) {
+            hlen++; hx++;
+        }
+        // compute vertical length starting at (x,y)
+        let vy = y + 1;
+        let vlen = 1;
+        while (set.has(`${x},${vy}`) && !consumed.has(`${x},${vy}`)) {
+            vlen++; vy++;
+        }
+
+        // choose longer run if length > 1
+        if (hlen > 1 || vlen > 1) {
+            if (hlen >= vlen) {
+                // horizontal line
+                cmds.push({ type: 'hline', x: x, y: y, w: hlen });
+                // mark consumed
+                for (let i = 0; i < hlen; i++) consumed.add(`${x + i},${y}`);
+            } else {
+                // vertical line
+                cmds.push({ type: 'vline', x: x, y: y, w: vlen });
+                for (let i = 0; i < vlen; i++) consumed.add(`${x},${y + i}`);
+            }
+        } else {
+            // single pixel
+            cmds.push({ type: 'pixel', x: x, y: y });
+            consumed.add(key);
+        }
+    }
+    return cmds;
 }
