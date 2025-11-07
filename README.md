@@ -25,6 +25,7 @@ Notes & tips
 - The origin highlight uses a visible outline to help you identify the base pixel.
 - Presets clear the whole grid so beware, you can quickly reset your progress and will need to start over
 - When a line is draw the app checks the direction and outputs a drawLine function. If you do not want this feature download [v3.0.0](https://github.com/vectoren/u8g2-drawing-generator/releases/tag/v.3.0.0)
+
 Contributing
 ------------
 Pull requests welcome. Keep edits small and add a short example in the README if you add new features.
