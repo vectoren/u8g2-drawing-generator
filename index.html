@@ -25,7 +25,7 @@
                             <button id="randomBtn">Random</button>
                             <button id="setOriginBtn" title="Click this, then click a cell to set origin">Set origin</button>
                             <button id="clearOriginBtn" title="Clear the selected origin">Clear origin</button>
-                            <fieldset style="display:flex-column; align-items:center; gap:8px; border:0; padding:0; margin:0">
+                            <fieldset style="display:flex; align-items:center; gap:8px; border:0; padding:0; margin:0">
                                 <legend class="small" style="margin-right:6px">Output:</legend>
                                 <label class="small" style="display:flex; align-items:center; gap:6px;">
                                     <input type="radio" name="outputMode" id="outputNormal" value="normal" checked>
@@ -43,7 +43,172 @@
                         </div>
                     </div>
                     <div class="coords">Hover shows coordinates; <br>right-click clears single cell.</div>
+                    <div id="presets" class="presets">
+                        <div class="presets-header small">Presets</div>
+                        <div class="preset-list">
+                            <button class="preset-card" data-preset="heart" title="Heart preset" id="presetHeart">
+                                <div class="preset-grid" aria-hidden="true">
+                                    <!-- Heart pattern 8x8 -->
+                                    <!-- rows 0..7, cols 0..7 -->
+                                    <!-- Row 0 -->
+                                    <div class="pixel" data-x="0" data-y="0"></div>
+                                    <div class="pixel on" data-x="1" data-y="0"></div>
+                                    <div class="pixel on" data-x="2" data-y="0"></div>
+                                    <div class="pixel" data-x="3" data-y="0"></div>
+                                    <div class="pixel" data-x="4" data-y="0"></div>
+                                    <div class="pixel on" data-x="5" data-y="0"></div>
+                                    <div class="pixel on" data-x="6" data-y="0"></div>
+                                    <div class="pixel" data-x="7" data-y="0"></div>
+                                    <!-- Row 1 -->
+                                    <div class="pixel on" data-x="0" data-y="1"></div>
+                                    <div class="pixel on" data-x="1" data-y="1"></div>
+                                    <div class="pixel on" data-x="2" data-y="1"></div>
+                                    <div class="pixel on" data-x="3" data-y="1"></div>
+                                    <div class="pixel on" data-x="4" data-y="1"></div>
+                                    <div class="pixel on" data-x="5" data-y="1"></div>
+                                    <div class="pixel on" data-x="6" data-y="1"></div>
+                                    <div class="pixel on" data-x="7" data-y="1"></div>
+                                    <!-- Row 2 -->
+                                    <div class="pixel on" data-x="0" data-y="2"></div>
+                                    <div class="pixel on" data-x="1" data-y="2"></div>
+                                    <div class="pixel on" data-x="2" data-y="2"></div>
+                                    <div class="pixel on" data-x="3" data-y="2"></div>
+                                    <div class="pixel on" data-x="4" data-y="2"></div>
+                                    <div class="pixel on" data-x="5" data-y="2"></div>
+                                    <div class="pixel on" data-x="6" data-y="2"></div>
+                                    <div class="pixel on" data-x="7" data-y="2"></div>
+                                    <!-- Row 3 -->
+                                    <div class="pixel on" data-x="0" data-y="3"></div>
+                                    <div class="pixel on" data-x="1" data-y="3"></div>
+                                    <div class="pixel on" data-x="2" data-y="3"></div>
+                                    <div class="pixel on" data-x="3" data-y="3"></div>
+                                    <div class="pixel on" data-x="4" data-y="3"></div>
+                                    <div class="pixel on" data-x="5" data-y="3"></div>
+                                    <div class="pixel on" data-x="6" data-y="3"></div>
+                                    <div class="pixel on" data-x="7" data-y="3"></div>
+                                    <!-- Row 4 -->
+                                    <div class="pixel" data-x="0" data-y="4"></div>
+                                    <div class="pixel on" data-x="1" data-y="4"></div>
+                                    <div class="pixel on" data-x="2" data-y="4"></div>
+                                    <div class="pixel on" data-x="3" data-y="4"></div>
+                                    <div class="pixel on" data-x="4" data-y="4"></div>
+                                    <div class="pixel on" data-x="5" data-y="4"></div>
+                                    <div class="pixel on" data-x="6" data-y="4"></div>
+                                    <div class="pixel" data-x="7" data-y="4"></div>
+                                    <!-- Row 5 -->
+                                    <div class="pixel" data-x="0" data-y="5"></div>
+                                    <div class="pixel" data-x="1" data-y="5"></div>
+                                    <div class="pixel on" data-x="2" data-y="5"></div>
+                                    <div class="pixel on" data-x="3" data-y="5"></div>
+                                    <div class="pixel on" data-x="4" data-y="5"></div>
+                                    <div class="pixel on" data-x="5" data-y="5"></div>
+                                    <div class="pixel" data-x="6" data-y="5"></div>
+                                    <div class="pixel" data-x="7" data-y="5"></div>
+                                    <!-- Row 6 -->
+                                    <div class="pixel" data-x="0" data-y="6"></div>
+                                    <div class="pixel" data-x="1" data-y="6"></div>
+                                    <div class="pixel" data-x="2" data-y="6"></div>
+                                    <div class="pixel on" data-x="3" data-y="6"></div>
+                                    <div class="pixel on" data-x="4" data-y="6"></div>
+                                    <div class="pixel" data-x="5" data-y="6"></div>
+                                    <div class="pixel" data-x="6" data-y="6"></div>
+                                    <div class="pixel" data-x="7" data-y="6"></div>
+                                    <!-- Row 7 -->
+                                    <div class="pixel" data-x="0" data-y="7"></div>
+                                    <div class="pixel" data-x="1" data-y="7"></div>
+                                    <div class="pixel" data-x="2" data-y="7"></div>
+                                    <div class="pixel" data-x="3" data-y="7"></div>
+                                    <div class="pixel" data-x="4" data-y="7"></div>
+                                    <div class="pixel" data-x="5" data-y="7"></div>
+                                    <div class="pixel" data-x="6" data-y="7"></div>
+                                    <div class="pixel" data-x="7" data-y="7"></div>
+                                </div>
+                                <div class="preset-label">Heart</div>
+                            </button>
+                            <button class="preset-card" data-preset="cube" title="Cube preset" id="presetCube"> 
+                                <div class="preset-grid" aria-hidden="true">
+                                    <!-- Cube pattern 8x8 -->
+                                    <!-- rows 0..7, cols 0..7 -->
+                                    <!-- Row 0 --> 
+                                    <div class="pixel" data-x="0" data-y="0"></div>
+                                    <div class="pixel" data-x="1" data-y="0"></div>
+                                    <div class="pixel" data-x="2" data-y="0"></div>
+                                    <div class="pixel" data-x="3" data-y="0"></div>
+                                    <div class="pixel" data-x="4" data-y="0"></div>
+                                    <div class="pixel" data-x="5" data-y="0"></div>
+                                    <div class="pixel" data-x="6" data-y="0"></div>
+                                    <div class="pixel" data-x="7" data-y="0"></div>
+                                    <!-- Row 1 --> 
+                                    <div class="pixel" data-x="0" data-y="1"></div>
+                                    <div class="pixel on" data-x="1" data-y="1"></div>
+                                    <div class="pixel on" data-x="2" data-y="1"></div>
+                                    <div class="pixel on" data-x="3" data-y="1"></div>
+                                    <div class="pixel on" data-x="4" data-y="1"></div>
+                                    <div class="pixel on" data-x="5" data-y="1"></div>
+                                    <div class="pixel on" data-x="6" data-y="1"></div>
+                                    <div class="pixel" data-x="7" data-y="1"></div>
+                                    <!-- Row 2 --> 
+                                    <div class="pixel" data-x="0" data-y="2"></div>
+                                    <div class="pixel on" data-x="1" data-y="2"></div>
+                                    <div class="pixel on" data-x="2" data-y="2"></div>
+                                    <div class="pixel on" data-x="3" data-y="2"></div>
+                                    <div class="pixel on" data-x="4" data-y="2"></div>
+                                    <div class="pixel on" data-x="5" data-y="2"></div>
+                                    <div class="pixel on" data-x="6" data-y="2"></div>
+                                    <div class="pixel" data-x="7" data-y="2"></div>
+                                    <!-- Row 3 --> 
+                                    <div class="pixel" data-x="0" data-y="3"></div>
+                                    <div class="pixel on" data-x="1" data-y="3"></div>
+                                    <div class="pixel on" data-x="2" data-y="3"></div>
+                                    <div class="pixel on" data-x="3" data-y="3"></div>
+                                    <div class="pixel on" data-x="4" data-y="3"></div>
+                                    <div class="pixel on" data-x="5" data-y="3"></div>
+                                    <div class="pixel on" data-x="6" data-y="3"></div>
+                                    <div class="pixel" data-x="7" data-y="3"></div>
+                                    <!-- Row 4 --> 
+                                    <div class="pixel" data-x="0" data-y="4"></div>
+                                    <div class="pixel on" data-x="1" data-y="4"></div>
+                                    <div class="pixel on" data-x="2" data-y="4"></div>
+                                    <div class="pixel on" data-x="3" data-y="4"></div>
+                                    <div class="pixel on" data-x="4" data-y="4"></div>
+                                    <div class="pixel on" data-x="5" data-y="4"></div>
+                                    <div class="pixel on" data-x="6" data-y="4"></div>
+                                    <div class="pixel" data-x="7" data-y="4"></div>
+                                    <!-- Row 5 --> 
+                                    <div class="pixel" data-x="0" data-y="5"></div>
+                                    <div class="pixel on" data-x="1" data-y="5"></div>
+                                    <div class="pixel on" data-x="2" data-y="5"></div>
+                                    <div class="pixel on" data-x="3" data-y="5"></div>
+                                    <div class="pixel on" data-x="4" data-y="5"></div>
+                                    <div class="pixel on" data-x="5" data-y="5"></div>
+                                    <div class="pixel on" data-x="6" data-y="5"></div>
+                                    <div class="pixel" data-x="7" data-y="5"></div>
+                                    <!-- Row 6 --> 
+                                    <div class="pixel" data-x="0" data-y="6"></div>
+                                    <div class="pixel on" data-x="1" data-y="6"></div>
+                                    <div class="pixel on" data-x="2" data-y="6"></div>
+                                    <div class="pixel on" data-x="3" data-y="6"></div>
+                                    <div class="pixel on" data-x="4" data-y="6"></div>
+                                    <div class="pixel on" data-x="5" data-y="6"></div>
+                                    <div class="pixel on" data-x="6" data-y="6"></div>
+                                    <div class="pixel" data-x="7" data-y="6"></div>
+                                    <!-- Row 7 -->
+                                    <div class="pixel" data-x="0" data-y="7"></div>
+                                    <div class="pixel" data-x="1" data-y="7"></div>
+                                    <div class="pixel" data-x="2" data-y="7"></div>
+                                    <div class="pixel" data-x="3" data-y="7"></div>
+                                    <div class="pixel" data-x="4" data-y="7"></div>
+                                    <div class="pixel" data-x="5" data-y="7"></div>
+                                    <div class="pixel" data-x="6" data-y="7"></div>
+                                    <div class="pixel" data-x="7" data-y="7"></div>
+                                </div>
+                                <div class="preset-label">Cube</div>
+                            </button>
+                            
+                        </div>
+                    </div>
                     <div style="margin-top:6px; font-size:13px; color:var(--muted)">Origin: <span id="originDisplay">none</span></div>
+
                 </div>
                 <div id="gridContainer"></div>
             </div>

@@ -23,7 +23,7 @@ Notes & tips
 - If you pick Relative or Variable modes but haven't set an origin, the generator will prompt you to set one and abort generation.
 - Variable mode is useful when you want to emit code that will be used inside a loop or function using `x`/`y` as dynamic base coordinates.
 - The origin highlight uses a visible outline to help you identify the base pixel.
-
+- Presets clear the whole grid so beware, you can quickly reset your progress and will need to start over
 Contributing
 ------------
 Pull requests welcome. Keep edits small and add a short example in the README if you add new features.

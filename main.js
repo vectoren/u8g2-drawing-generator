@@ -283,3 +283,50 @@ document.addEventListener('keydown', (ev) => {
         }
     }
 });
+
+document.getElementById('presetHeart').addEventListener('click', () => {
+    const heartPattern = [
+        "00000000",
+        "01100110",
+        "11111111",
+        "11111111",
+        "11111111",
+        "01111110",
+        "00111100",
+        "00011000"
+    ];
+    applyPresetPattern(heartPattern);
+});
+
+document.getElementById('presetCube').addEventListener('click', () => {
+    const cubePattern = [
+        "00000000",
+        "01111110",
+        "01111110",
+        "01111110",
+        "01111110",
+        "01111110",
+        "01111110",
+        "00000000"
+    ];
+    applyPresetPattern(cubePattern);
+});
+
+function applyPresetPattern(pattern) {
+    if(origin) {
+        const offsetX = origin[0];
+        const offsetY = origin[1];
+        document.querySelectorAll('.cell.on').forEach(c => c.classList.remove('on'));
+        for (let y = 0; y < pattern.length; y++) {
+            for (let x = 0; x < pattern[y].length; x++) {
+                if (pattern[y][x] === '1') {
+                    const cell = document.querySelector(`.cell[data-x="${x + offsetX}"][data-y="${y + offsetY}"]`);
+                    if (cell) cell.classList.add('on');
+                }
+            }
+        }
+    }
+    else {
+        alert('Please set an origin before applying a preset pattern.');
+    }
+}
