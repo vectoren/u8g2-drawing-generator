@@ -1,4 +1,4 @@
-alert('Before usage read manual');
+//alert('Before usage read manual');
 
 const WIDTH = 32;
 const HEIGHT = 32;
@@ -113,7 +113,7 @@ document.getElementById('genBtn').addEventListener('click', () => {
     // helper to format x/y expressions for relative/variable modes
     function formatCoord(base, delta) {
         if (delta === 0) return `${base}`;
-        return delta > 0 ? `${base} + ${delta}` : `${base} - ${Math.abs(delta)}`;
+        return delta > 0 ? `${base}+${delta}` : `${base}-${Math.abs(delta)}`;
     }
 
     const mode = getOutputMode();

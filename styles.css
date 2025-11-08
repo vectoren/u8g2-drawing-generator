@@ -4,6 +4,10 @@
     --panel: #0b1220;
     --muted: #9aa5b1;
     --accent: #6ee7b7;
+
+    --grid-bg: #031120;
+    --pixel-on: #e7906e;
+    --origin-color: #e0e0e0;
 }
 
 html, body {
@@ -51,7 +55,7 @@ h1 {
 
 .grid {
     display: grid;
-    background: #99abbe;
+    background: var(--grid-bg);
     padding: 8px;
     border-radius: 8px;
     min-width: calc(320px+8px+32px);
@@ -130,12 +134,12 @@ option {
     cursor: pointer;
 }
 .cell.on {
-    background: var(--accent);
+    background: var(--pixel-on);
     border: 1px solid rgba(255, 255, 255, 0.06);
     box-shadow: 0 0 6px rgba(110, 231, 183, 0.15);
 }
 .cell.origin {
-    outline: 2px solid #ffd86b;
+    outline: 2px solid var(--origin-color);
     outline-offset: -2px;
     box-shadow: 0 0 6px rgba(255, 216, 107, 0.12);
 }
@@ -207,7 +211,7 @@ option {
     border: 1px solid rgba(255,255,255,0.02);
 }
 .pixel.on {
-    background: var(--accent);
+    background: var(--pixel-on);
     box-shadow: 0 0 4px rgba(110,231,183,0.12);
     border: 1px solid rgba(255,255,255,0.04);
 }
