@@ -286,7 +286,26 @@
                         </div>
                     </div>
                     <div style="margin-top:6px; font-size:13px; color:var(--muted)">Origin: <span id="originDisplay">none</span></div>
-
+                    <div class="colors">
+                        <label class="small">Customize colors:</label>
+                        <div class="color-selectors" style="display: flex; gap: 4px;">
+                            <div class="grid-color-selector" style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px">
+                                <label class="small">Grid color:</label>
+                                <input type="color" value="#99abbe" id="gridColorInput">
+                            </div>
+                            <div class="pixel-color-selector" style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px">
+                                <label class="small">Pixel color:</label>
+                                <input type="color" value="#6ee7b7" id="pixelColorInput">
+                            </div>
+                            <div class="origin-color-selector" style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px">
+                                <label class="small">Origin color:</label>
+                                <input type="color" value="#ffd86b" id="originColorInput">
+                            </div>
+                        </div>
+                        <button id="resetColors">
+                            Reset colors
+                        </button>
+                    </div>
                 </div>
                 <div id="gridContainer"></div>
             </div>

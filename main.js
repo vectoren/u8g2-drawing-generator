@@ -454,3 +454,23 @@ function detectLines(points) {
     }
     return cmds;
 }
+
+document.getElementById('gridColorInput').addEventListener('input', (ev) => {
+    document.documentElement.style.setProperty('--grid-bg', ev.target.value);
+});
+
+document.getElementById('pixelColorInput').addEventListener('input', (ev) => {
+    document.documentElement.style.setProperty('--pixel-on', ev.target.value);
+}); 
+document.getElementById('originColorInput').addEventListener('input', (ev) => {
+    document.documentElement.style.setProperty('--origin-color', ev.target.value);
+});
+
+document.getElementById('resetColors').addEventListener('click', () => {
+    document.documentElement.style.setProperty('--grid-bg', '#99abbe');
+    document.documentElement.style.setProperty('--pixel-on', '#6ee7b7');
+    document.documentElement.style.setProperty('--origin-color', '#ffd86b');
+    document.getElementById('gridColorInput').value = '#99abbe';
+    document.getElementById('pixelColorInput').value = '#6ee7b7';
+    document.getElementById('originColorInput').value = '#ffd86b';
+});

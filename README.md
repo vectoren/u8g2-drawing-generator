@@ -25,7 +25,8 @@ Notes & tips
 - The origin highlight uses a visible outline to help you identify the base pixel.
 - Presets clear the whole grid so beware, you can quickly reset your progress and will need to start over
 - When a line is draw the app checks the direction and outputs a drawLine function. If you do not want this feature download [v3.0.0](https://github.com/vectoren/u8g2-drawing-generator/releases/tag/v.3.0.0).
-- To change the color of grid/pixel/origin go into styles.css and change values after --grid/pixel/origin:
+- To change color of something click the coresponding color window and choose prefered color. Note that colors do not stay after reload of the page.
+- To reset the color selection press reset colors button
 Contribution
 ---------------
 Pull requests welcome.
